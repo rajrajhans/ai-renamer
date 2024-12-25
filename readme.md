@@ -1,5 +1,12 @@
 # ai-renamer
 
+> Forked from [ozgrozer/ai-renamer](https://github.com/ozgrozer/ai-renamer)
+
+## Changes:
+
+- Adds support for concurrency (-n 10 will process 10 files at a time)
+- Supplies file metadata to the LLM prompt (helpful in cases when the new name needs to be based on the file's creation date or size)
+
 A Node.js CLI that uses Ollama and LM Studio models (Llava, Gemma, Llama etc.) to intelligently rename files by their contents
 
 [![npm](https://img.shields.io/npm/v/ai-renamer.svg?style=flat-square)](https://www.npmjs.com/package/ai-renamer)
