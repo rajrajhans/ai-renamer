@@ -6,7 +6,7 @@ const processFile = require('./processFile');
 
 const processDirectory = async ({ options, inputPath }) => {
   try {
-    const sema = new Sema(10);
+    const sema = new Sema(options.concurrency || 10);
 
     const files = await fs.readdir(inputPath);
     const processPromises = [];
