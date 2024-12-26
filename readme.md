@@ -6,6 +6,7 @@
 
 - Adds support for concurrency (-n 10 will process 10 files at a time)
 - Supplies file metadata to the LLM prompt (helpful in cases when the new name needs to be based on the file's creation date or size)
+- Extracts EXIF data if available from image files, and location data from video files (GPS coordinates, altitude, capture date) and supplies it to the LLM prompt
 
 A Node.js CLI that uses Ollama and LM Studio models (Llava, Gemma, Llama etc.) to intelligently rename files by their contents
 

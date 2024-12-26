@@ -3,6 +3,8 @@ const getModelResponse = require('./getModelResponse');
 const fs = require('fs').promises;
 const path = require('path');
 const getExifData = require('./getExifData');
+const getVideoLocation = require('./getVideoLocation');
+const isVideo = require('./isVideo');
 
 module.exports = async (options) => {
   const {
@@ -18,6 +20,14 @@ module.exports = async (options) => {
   } = options;
 
   let imageExifData = {};
+  let videoLocationData = null;
+
+  const fullPath = path.join(inputPath, relativeFilePath);
+  const ext = path.extname(fullPath).toLowerCase();
+
+  if (isVideo({ ext })) {
+    videoLocationData = await getVideoLocation(fullPath);
+  }
 
   if (images) {
     await Promise.all(
@@ -31,9 +41,8 @@ module.exports = async (options) => {
   }
 
   try {
-    const fullPath = path.join(inputPath, relativeFilePath);
-    const exifData = imageExifData[fullPath];
     const stats = await fs.stat(fullPath);
+    const exifData = imageExifData[fullPath];
 
     const basePrompt = `You are a filename generator, and you need to create a short, descriptive, and meaningful filename.
 
@@ -45,6 +54,11 @@ module.exports = async (options) => {
 - Only key elements
 - One word if possible
 - Prefer noun-verb format
+${
+  exifData || videoLocationData
+    ? '- If location data is available in metadata, use it at the beginning of the filename.'
+    : ''
+}
 
 File metadata (Use only if Custom instructions asks to):
 - Current filename: ${relativeFilePath}
@@ -68,6 +82,16 @@ File metadata (Use only if Custom instructions asks to):
         '',
         'Following is the EXIF Data extracted from image. Use the GPS coordinates to estimate the location to generate a more descriptive filename.',
         exifData
+      );
+    }
+
+    if (videoLocationData) {
+      promptLines.push(
+        '',
+        'Following is the location data extracted from video:',
+        `- GPS Coordinates: Latitude ${videoLocationData.latitude}, Longitude ${videoLocationData.longitude}`,
+        `- Altitude: ${videoLocationData.altitude} meters`,
+        `- Capture Date and Time: ${videoLocationData.creationTime}`
       );
     }
 
