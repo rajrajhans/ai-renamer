@@ -2,6 +2,7 @@ const changeCase = require('./changeCase');
 const getModelResponse = require('./getModelResponse');
 const fs = require('fs').promises;
 const path = require('path');
+const getExifData = require('./getExifData');
 
 module.exports = async (options) => {
   const {
@@ -13,14 +14,29 @@ module.exports = async (options) => {
     customPrompt,
     relativeFilePath,
     inputPath,
+    images,
   } = options;
+
+  let imageExifData = {};
+
+  if (images) {
+    await Promise.all(
+      images.map(async (image) => {
+        const exifData = await getExifData(image);
+        if (exifData) {
+          imageExifData[image] = exifData;
+        }
+      })
+    );
+  }
 
   try {
     const fullPath = path.join(inputPath, relativeFilePath);
+    const exifData = imageExifData[fullPath];
     const stats = await fs.stat(fullPath);
 
     const promptLines = [
-      'Generate a filename:',
+      'You are a filename generator, and you need to create a short, descriptive, and meaningful filename.',
       '',
       `- Use ${_case}`,
       `- Max ${chars} characters`,
@@ -31,7 +47,7 @@ module.exports = async (options) => {
       `- One word if possible`,
       `- Prefer noun-verb format`,
       '',
-      'File metadata (Use only if custom prompt asks to):',
+      'File metadata (Use only if Custom instructions asks to):',
       `- Current filename: ${relativeFilePath}`,
       `- File created: ${stats.birthtime.toISOString()}`,
       `- File modified: ${stats.mtime.toISOString()}`,
@@ -46,6 +62,15 @@ module.exports = async (options) => {
 
     if (content) {
       promptLines.push('', 'Content:', content);
+    }
+
+    if (exifData) {
+      console.log('EXIF data: ', exifData);
+      promptLines.push(
+        '',
+        'Following is the EXIF Data extracted from image. Feel free to use the GPS coordinates to estimate the location to generate a more descriptive filename.',
+        exifData
+      );
     }
 
     if (customPrompt) {
