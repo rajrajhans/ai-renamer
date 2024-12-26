@@ -65,10 +65,9 @@ module.exports = async (options) => {
     }
 
     if (exifData) {
-      console.log('EXIF data: ', exifData);
       promptLines.push(
         '',
-        'Following is the EXIF Data extracted from image. Feel free to use the GPS coordinates to estimate the location to generate a more descriptive filename.',
+        'Following is the EXIF Data extracted from image. Use the GPS coordinates to estimate the location to generate a more descriptive filename.',
         exifData
       );
     }
