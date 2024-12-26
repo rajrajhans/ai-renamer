@@ -9,7 +9,7 @@ with_dev_env() {
 
 run_node() {
     with_dev_env
-    node ${@}
+    node "$@"
 }
 
 fn_exists() { declare -F "$1" >/dev/null; }
@@ -20,11 +20,11 @@ run() {
     local fn="run_$cmd"
 
     if fn_exists $fn; then
-        $fn ${@}
+        $fn "$@"
     else
         with_dev_env
-        eval $cmd "${@}"
+        eval "$cmd" "$@"
     fi
 }
 
-run ${@}
+run "$@"
