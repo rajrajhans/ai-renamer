@@ -1,0 +1,30 @@
+run_deps() {
+    with_dev_env
+    yarn
+}
+
+with_dev_env() {
+    eval "$(./bin/env --overload -e .env.dev -e .env.dev.local)"
+}
+
+run_node() {
+    with_dev_env
+    node ${@}
+}
+
+fn_exists() { declare -F "$1" >/dev/null; }
+
+run() {
+    local cmd=$1
+    shift
+    local fn="run_$cmd"
+
+    if fn_exists $fn; then
+        $fn ${@}
+    else
+        with_dev_env
+        eval $cmd "${@}"
+    fi
+}
+
+run ${@}
